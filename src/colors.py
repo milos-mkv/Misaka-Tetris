@@ -10,3 +10,4 @@ class Color:
     LightGreen  : tuple = (100, 220, 100)
     LightRed    : tuple = (220, 100, 100)
     LightBlue   : tuple = (100, 100, 220)
+    LogoRed     : tuple = (150,  77,  96)

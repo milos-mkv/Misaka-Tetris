@@ -1,5 +1,6 @@
 import pygame
-from src.states import GlobalStates
+
+from src.states   import GlobalStates
 from pygame.event import Event
 
 class EventHandler(object):
@@ -8,10 +9,13 @@ class EventHandler(object):
         self.keys : dict  = { "down": False, "left": False, "right": False, "up": False, "z": False, "space": False, "c": False, "p": False,
                               "enter": False }
         self.joysticks : list = [ pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count()) ]
-        print(self.joysticks)
-        # self.joystick_buttons : dict [ "1": False, "2": False, "3": False, "4": False, "start": False, "select": False,
-        # "top": False, "right": False, "down": False, ""]
 
+
+    def key(self, k : str) -> None:
+        if self.keys[k]:
+            self.keys[k] = False
+            return True
+        return False
 
     def handle_key_events(self, event : Event, down : bool) -> None:
         if event.key == pygame.K_DOWN:  self.keys["down"]   = down
@@ -39,19 +43,9 @@ class EventHandler(object):
             if event.button == 3: self.keys["z"]     = False
 
         if event.type == pygame.JOYAXISMOTION:
-            if event.axis == 0 and round(event.value) == 1:
-                self.keys["right"] = True
-            if event.axis == 0 and round(event.value) == -1:
-                self.keys["left"] = True
-            if event.axis == 1 and round(event.value) == 1:
-                self.keys["down"] = True
-
-            if event.axis == 0 and round(event.value) == 0:
-                self.keys["right"] = False
-            if event.axis == 0 and round(event.value) == 0:
-                self.keys["left"] = False
-            if event.axis == 1 and round(event.value) == 0:
-                self.keys["down"] = False
-
-            print(event.value)
-            
+            if event.axis == 0 and round(event.value) == 1:  self.keys["right"] = True
+            if event.axis == 0 and round(event.value) == -1: self.keys["left"]  = True
+            if event.axis == 1 and round(event.value) == 1:  self.keys["down"]  = True
+            if event.axis == 0 and round(event.value) == 0:  self.keys["right"] = False
+            if event.axis == 0 and round(event.value) == 0:  self.keys["left"]  = False
+            if event.axis == 1 and round(event.value) == 0:  self.keys["down"]  = False            

@@ -21,13 +21,6 @@ from src.states     import GlobalStates
 class GameplaySystem(object):
 
     def __init__(self, events : EventHandler, assets : Assets) -> None:
-        """
-        Function: __init__
-
-        Params:
-            events : EventHandler   - Keep track of pressed and released keys.
-            assets : Assets         - Use sounds from assets to play sounds based on actions and etc.
-        """
         self.events : EventHandler = events
         self.assets : Assets       = assets
 
@@ -35,104 +28,68 @@ class GameplaySystem(object):
 
 
     def reset(self) -> None:
-        """
-        Function: reset
-
-        Brief:
-            Reset all game state values. Called in constructor also initializes all fields.
-        """
-
-        # Tetris field represented as double dimensional array [20 (rows) x 10 (columns)]
         self.tetris_field   : list  = [[0 for _ in range(Constants.COLS)] for _ in range(Constants.ROWS)]
 
-        self.move_timers    : dict  = { "down": 0,  "left": 0,  "right": 0 }        # State of move timers for moving current block on field.
-        self.next_peace     : str   = random.choice(list(TETRIS_PEACES.keys()))     # Next peace in queue.
-        self.ghost_cursor   : list  = [ 0, 0 ]                                      # Position of ghost cursor.
+        self.move_timers    : dict  = { "down": 0,  "left": 0,  "right": 0 }
+        self.next_peace     : str   = random.choice(list(TETRIS_PEACES.keys())) 
+        self.ghost_cursor   : list  = [ 0, 0 ] 
        
-        self.hold_peace     : str   = None                                          # Peace in hold.
+        self.hold_peace     : str   = None 
        
-        self.paused         : bool  = True                                          # Pause/Resume game.
+        self.paused         : bool  = False
         self.pause_time     : float = 0
-        self.total_time     : float = 0                                             # Total time of playing current game.
+        self.total_time     : float = 0
 
-        self.level          : int   = 0                                             # Current game level. Start from 0....
-        self.fall_timer     : float = 1                                            # Current block peace fall timer.
-        self.cleared_lines  : int   = 0                                             # Number of cleared lines in current game.
-        self.score          : int   = 0                                             # Total score.
-        self.inc_level      : int   = 0                                             # Value used to determine when to level up.
+        self.level          : int   = 0
+        self.fall_timer     : float = 1
+        self.cleared_lines  : int   = 0        
+        self.score          : int   = 0 
+        self.inc_level      : int   = 0  
 
-        self.indices        : list  = []                                            # Indices of lines cleared, used for particles.
-        self.block_ids      : list  = []                                            # Block ids in cleared indices, also used for particles.
+        self.indices        : list  = []
+        self.block_ids      : list  = [] 
+
+        self.dropped_hard   : bool  = False
 
         self.spawn_new_block()
 
 
+    def is_dropped_hard(self) -> bool:
+        if self.dropped_hard:
+            self.dropped_hard = False
+            return True
+        return False
+
     def spawn_new_block(self) -> None:
-        """
-        Function: spawn_new_block
+        self.current_peace   : str  = self.next_peace
+        self.rotation        : int  = 0  
+        self.cursor          : list = self.default_cursor()  
+        self.next_peace      : str  = random.choice(list(TETRIS_PEACES.keys()))  
 
-        Brief:
-            Replace current block with next block in queue and reset cursor position.
-        """
-        self.current_peace   : str  = self.next_peace                               # Set next peace as current peace.
-        self.rotation        : int  = 0                                             # Set default rotation.
-        self.cursor          : list = self.default_cursor()                         # Set default cursor.
-        self.next_peace      : str  = random.choice(list(TETRIS_PEACES.keys()))     # Set random peace as next peace in queue.
-
-        self.move_timers["down"]    = 0                                             # Reset move down timer.
-        self.can_hold   = True                                                      # Enable holding peace.
+        self.move_timers["down"]    = 0   
+        self.can_hold   = True   
         
-        if self.check_for_end():                                                    # Check if new created peace spawned into exisint block.
-            self.reset()                                                            # If so reset game state.
+        if self.check_for_end():  
+            self.reset()   
 
 
     def default_cursor(self) -> list: 
-        """
-        Function: default_cursor
-
-        Brief:
-            Return default cursor depending on current peace. Should be in the top middle of the field.
-        """
         return [ Constants.COLS // 2 - len(self.get_current_peace()[0]) // 2, 0 ]
 
 
     def get_next_peace(self) -> list:
-        """
-        Function: get_next_peace
-
-        Brief:
-            Return next tetris peace with default rotation.
-        """
         return TETRIS_PEACES[self.next_peace][0]
 
 
     def get_current_peace(self) -> list:
-        """
-        Function: get_current_peace
-
-        Brief:
-            Return current tetris peace with its current rotation.
-        """
         return TETRIS_PEACES[self.current_peace][self.rotation]
 
 
     def get_hold_peace(self) -> list:
-        """
-        Function: get_hold_peace
-
-        Brief:
-            Return hold tetris peace with default rotation. If there is no peace in hold return None.
-        """
         return None if self.hold_peace == None else TETRIS_PEACES[self.hold_peace][0]
 
 
     def check_for_end(self) -> bool:
-        """
-        Function: check_for_end
-
-        Brief:
-            If current peace spawns into existing peace on tetris field it should indicate end, therefore return True otherwise False.
-        """
         peace = self.get_current_peace()
         for i in range(len(peace)):
             for j in range(len(peace[i])):
@@ -142,15 +99,6 @@ class GameplaySystem(object):
 
     
     def update(self, delta : float) -> None:
-        """
-        Function: update
-
-        Params:
-            delta : float   - Elapsed time since the game function update call.
-
-        Brief:
-            Every frame update current state of the game.
-        """
         if self.paused or self.pause_time > 0:
             return
 
@@ -166,12 +114,6 @@ class GameplaySystem(object):
 
 
     def activate_hold_peace(self) -> None:
-        """
-        Function: activate_hold_peace
-
-        Brief:
-            If can swap between current and holding peace.
-        """
         if not self.events.keys["c"] or not self.can_hold:
             return
 
@@ -190,37 +132,16 @@ class GameplaySystem(object):
 
     
     def move_cusror_y(self, cursor : list):
-        """
-        Function: move_cursor_y
-
-        Params:
-            cursor : list   - Cursor. | Peace or Ghost |
-
-        Breif:
-            Move provided cursor to the lowest point on field it can go.
-        """
         while not (self.check_collision_y(cursor) or (cursor[Constants.Y] + len(self.get_current_peace()) > Constants.ROWS)):
             cursor[Constants.Y] += 1
 
 
     def calc_ghost_cursor(self) -> None:
-        """
-        Function: cal_ghost_cursor
-
-        Brief:
-            Calculate ghost cursor position.
-        """
         self.ghost_cursor = self.cursor.copy()
         self.move_cusror_y(self.ghost_cursor)
 
 
     def drop_block(self) -> None: 
-        """
-        Function: drop_block
-
-        Brief:
-            Hard drop current peace into current ghost position and spawn new block.
-        """
         if not self.events.keys["space"]:
             return
         
@@ -237,18 +158,11 @@ class GameplaySystem(object):
         
         self.spawn_new_block()
         self.assets.channel1.play(self.assets.drop_sound)
+        self.dropped_hard = True
+        self.dropped_hard_cursor = self.ghost_cursor.copy()
 
 
     def move_on_y_axis(self, delta : float) -> None:
-        """
-        Function: move_on_y_axis
-
-        Params:
-            delta : float   - Elapsed time since the game function update call.
-        
-        Brief:
-            Move current peace on y axis.
-        """
         self.move_timers["down"] += delta
         if not (self.move_timers["down"] >= self.fall_timer or (self.events.keys["down"] and self.move_timers["down"] >= 0.04)):
             return
@@ -270,15 +184,6 @@ class GameplaySystem(object):
 
 
     def move_on_x_axis(self, delta : float) -> None:
-        """
-        Function: move_on_x_axis
-
-        Params:
-            delta : float   - Elapsed time since the game function update call.
-
-        Brief:
-            Move current peace on x axis.
-        """
         if not self.events.keys["left"] and not self.events.keys["right"]:
             return
 
@@ -299,15 +204,6 @@ class GameplaySystem(object):
 
 
     def check_collision_x(self, side : str) -> bool:
-        """
-        Function: check_collision_x
-
-        Params:
-            side : str      - Side on which to check collision.
-
-        Brief:
-            Check if current peace collides with blocks on x axis om provided side.
-        """
         peace = self.get_current_peace()
         for i in range(len(peace)):
             for j in range(len(peace[i])):
@@ -319,15 +215,6 @@ class GameplaySystem(object):
 
 
     def check_collision_y(self, cursor : list) -> bool:
-        """
-        Function: check_collision_y
-
-        Params:
-            cursor : list      - Cursor for which to check collision. | Peace or Ghost |
-
-        Brief:
-            Check if provided cursor collides with blocks on y axis om provided side.
-        """
         peace = self.get_current_peace()
         for i in range(len(peace)):
             for j in range(len(peace[i])):
@@ -337,12 +224,6 @@ class GameplaySystem(object):
 
 
     def rotate_peace(self) -> None:
-        """
-        Function: rotate_peace
-
-        Brief:
-            Rotate current peace clockwise or counter clockwise.
-        """
         if not self.events.keys["up"] and not self.events.keys["z"]:
             return
 
@@ -374,12 +255,6 @@ class GameplaySystem(object):
 
 
     def check_for_cleared_lines(self) -> None:
-        """
-        Function: check_for_cleared_lines
-
-        Brief:
-            Check for cleared lines.
-        """
         for i in range(Constants.ROWS):
             if all(list(self.tetris_field[i])):
                 self.block_ids.append(list(self.tetris_field[i]).copy())
@@ -400,28 +275,13 @@ class GameplaySystem(object):
     
 
     def update_score(self, cleared : int) -> None:
-        """
-        Function: update_score
-
-        Params:
-            cleared : int   - Number of cleared lines.
-        
-        Brief:
-            Add more value to current score. Formula for calculating score: 40 * (n + 1)   100 * (n + 1)   300 * (n + 1)   1200 * (n + 1)
-        """
         self.cleared_lines += cleared
         self.score         += ((self.level + 1) * Constants.SCORES[len(self.indices) - 1])
 
 
     def update_level(self):
-        """
-        Function: update_level
-        
-        Brief:
-            For every 10 cleared lines increment level.
-        """
         if self.inc_level   >= 10:
             self.inc_level  -= 10
             self.level      += 1 
             self.fall_timer -= self.level * 0.01
-        pass
+        

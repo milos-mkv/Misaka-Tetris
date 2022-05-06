@@ -27,7 +27,7 @@ class Assets(object):
 
         self.block_images     : list    = []
         for i in range(1, 9):
-            self.block_images.append(pygame.image.load("./assets/" + str(i) +".png").convert_alpha())
+            self.block_images.append(pygame.image.load("./assets/blocks/" + str(i) +".png").convert_alpha())
 
 
         self.main_menu_particle_images : list = []
@@ -43,10 +43,14 @@ class Assets(object):
         self.bg_music    = pygame.mixer.Sound("./assets/bg1.mp3" ) 
         self.clear_sound = pygame.mixer.Sound("./assets/clear.mp3") 
         self.select_sound = pygame.mixer.Sound("./assets/select.wav") 
+        self.enter_sound = pygame.mixer.Sound("./assets/enter.wav") 
+        self.enter_sound.set_volume(0.09)
         self.select_sound.set_volume(0.08)
         self.clear_sound.set_volume(0.08)
 
     def init_fonts(self) -> None:
+        self.font_24 = pygame.font.Font('./assets/font.ttf', 24)
         self.font = pygame.font.Font('./assets/font.ttf', 32)
         self.font_48 = pygame.font.Font('./assets/font.ttf', 48)
         self.font_64 = pygame.font.Font('./assets/font.ttf', 64)
+        self.font_consolas = pygame.font.Font('./assets/font1.ttf', 12)

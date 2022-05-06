@@ -1,9 +1,11 @@
 
 class Constants:
-    SCREEN_SIZE             : tuple = (1150, 700)
+    SCREEN_SIZE             : tuple = (1152, 700)
     BLOCK_SIZE              : int   = 32
+
     ROWS                    : int   = 21
     COLS                    : int   = 10
+    
     X                       : int   = 0
     Y                       : int   = 1
     MAX_FPS                 : int   = 120

@@ -12,20 +12,14 @@ Distributed under the MIT software license, see the accompanying file LICENCE or
 """
 
 import random
-
+import pygame
+from src.colors    import Color
+from pygame        import Surface
 from src.constants import Constants
 
 class Particle(object):
 
     def __init__(self, position : list, velocity : list, speed : list) -> None:
-        """
-        Function: __init__
-
-        Params:
-            position : list    - Starting position of particle.
-            velocity : list    - Rate of change of position.
-            speed    : list    - Speed of particle for both x and y axis.
-        """
         self.position : list    = position
         self.velocity : list    = velocity
         self.speed    : list    = speed
@@ -33,13 +27,13 @@ class Particle(object):
         self.size     : int     = random.randint(2, 8)
 
 
-class MainMenuParticleSystem(object):
+class BackgroundParticleSystem(object):
 
     def __init__(self) -> None:
         self.particles : list   = [ 
             Particle([random.uniform(0, Constants.SCREEN_SIZE[Constants.X]), random.uniform(0, Constants.SCREEN_SIZE[Constants.Y])],
                      [random.uniform(-0.05, 0.1), random.uniform(-0.1,  -0.2 )],
-                     [random.uniform(-0.1,  0.2), random.uniform(-0.02, -0.09)]) for _ in range(120) ]
+                     [random.uniform(-0.1,  0.2), random.uniform(-0.02, -0.09)]) for _ in range(100) ]
 
 
     def update(self, delta : float) -> None:
@@ -54,4 +48,34 @@ class MainMenuParticleSystem(object):
         for i in range(2):
             particle.position[i] += particle.velocity[i]
             particle.velocity[i] += particle.speed[i] * delta
+
+    def render(self, screen : Surface) -> None:
+        for particle in self.particles:
+            pygame.draw.rect(screen, particle.color, (particle.position[0], particle.position[1], particle.size, particle.size), 1)
+
+
+
+class HardDropParticles(object):
+
+    def __init__(self) -> None:
+        self.particles : list = []
+
+    def add(self, position : list) -> None:
+        self.particles.append(Particle(position,  [random.uniform(-0.01, 0.01), random.uniform(-0.1, -0.2)], [random.uniform(-0.1,  0.1), random.uniform(-0.02, -0.09)] ))
+
+    def update(self, delta : float) -> None:
+        for particle in self.particles:
+            particle.size -= delta
+            self.update_particle(particle, delta)
+            if  particle.size < 1:
+                self.particles.remove(particle)
+
+    def update_particle(self, particle : Particle, delta : float) -> None:
+        particle.position[0] += particle.speed[0] * delta * 200
+        particle.position[1] += -100 * delta
+            # particle.velocity[i] += 
+
+    def render(self, screen : Surface) -> None:
+        for particle in self.particles:
+            pygame.draw.rect(screen, Color.White, (particle.position[0], particle.position[1], 20, 20)) #particle.size, particle.size))
 

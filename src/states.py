@@ -1,7 +1,7 @@
 
 class GlobalStates:
-    GAME_RUNNING : bool  = True
-    DELTA_TIME   : float = 0
+    Running : bool  = True
+    Screen  : str   = "Gameplay"
     FIRST_MOVE   : list  = [ False, False ]
 
 
