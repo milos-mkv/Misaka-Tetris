@@ -14,16 +14,16 @@ Distributed under the MIT software license, see the accompanying file LICENCE or
 import pygame
 import pickle
 
-from enum          import Enum
-
 from pygame        import Surface
 from pygame.time   import Clock
+from src.particle import BackgroundParticleSystem, HardDropParticleSystem
+from src.colors    import Color
 
 from src.constants import Constants
 from src.assets    import Assets
 from src.events    import EventHandler
 from src.settings  import SettingsScreen, Settings
-from src.renderer  import GameplayScreen
+from src.screens.gameplay  import GameplayScreen
 
 from src.mainmenu  import MainMenuCursor, MainMenuScreen
 from src.states import GlobalStates
@@ -44,8 +44,6 @@ class Game(object):
         self.event_handler : EventHandler = EventHandler()
 
         self.screens : dict = {
-            "MainMenu": MainMenuScreen(self.surface, self.assets, self.event_handler),
-            "Settings": SettingsScreen(self.surface, self.assets, self.event_handler),
             "Gameplay": GameplayScreen(self.surface, self.assets, self.event_handler)
         }
                                 
@@ -57,17 +55,18 @@ class Game(object):
         second_counter : int = 0
 
         while GlobalStates.Running:
-            self.delta = self.clock.tick(120) / 1000.0
-
-            self.poll_events()     
-            self.screens[GlobalStates.Screen].render(self.delta)
+            self.delta = self.clock.tick() / 1000.0
             
+            self.poll_events()      
+            self.surface.fill(Color.LightBlack)
+
+            self.screens[GlobalStates.Screen].render(self.delta)
 
             pygame.display.flip()
             
             second_counter += self.delta
             if second_counter >= 1.0:
-                print(self.clock.get_fps())
+                # print(self.clock.get_fps())
                 second_counter = 0
 
     def poll_events(self):

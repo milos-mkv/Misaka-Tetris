@@ -8,7 +8,7 @@ from src.assets import Assets
 from src.systems import GameplaySystem
 from src.constants import Constants
 from src.colors import Color
-from src.particle import BackgroundParticleSystem, HardDropParticles
+from src.particle import BackgroundParticleSystem
 
 from src.states import GlobalStates
 from datetime import date
@@ -23,24 +23,24 @@ class GameplayScreen(object):
         self.assets: Assets = assets
         self.system: GameplaySystem = GameplaySystem(
             event_handler, self.assets)
-        self.particles: BackgroundParticleSystem = BackgroundParticleSystem()
+        self.particles: BackgroundParticleSystem = BackgroundParticleSystem(100, 100)
         self.init_text()
         self.back = pygame.Surface((10 * 32, 20 * 32))
         self.back.fill(Color.LightBlack)
         self.back.set_alpha(220)
 
-        self.ps = HardDropParticles()
+        # self.ps = HardDropParticles()
 
     def init_text(self) -> None:
         self.text: dict = {
-            "Hold":  self.assets.font.render("Hold",  True, Color.Grey),
-            "Next":  self.assets.font.render("Next",  True, Color.Grey),
-            "Lines": self.assets.font.render("Lines", True, Color.White),
-            ":":     self.assets.font.render(":",     True, Color.White),
-            "Play":  self.assets.font.render("Play",  True, Color.White),
-            "Time":  self.assets.font.render("Time",  True, Color.White),
+            "Hold":  self.assets.font_32.render("Hold",  True, Color.Grey),
+            "Next":  self.assets.font_32.render("Next",  True, Color.Grey),
+            "Lines": self.assets.font_32.render("Lines", True, Color.White),
+            ":":     self.assets.font_32.render(":",     True, Color.White),
+            "Play":  self.assets.font_32.render("Play",  True, Color.White),
+            "Time":  self.assets.font_32.render("Time",  True, Color.White),
             "Pause": self.assets.font_48.render("Pause", True, Color.White),
-            "Pause1": self.assets.font.render("Press [P] to unpause", True, Color.White),
+            "Pause1": self.assets.font_32.render("Press [P] to unpause", True, Color.White),
         }
 
     def get_image_for_block(self, peace: int) -> Surface:
@@ -71,6 +71,7 @@ class GameplayScreen(object):
 
         self.ps.update(delta)
         self.ps.render(self.screen)
+
 
         self.draw_tetris_field(offset=13)
         self.draw_next_block(24)
@@ -109,25 +110,25 @@ class GameplayScreen(object):
 
     def draw_info_board(self) -> None:
 
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             "Level", True, Color.Grey), (BSIZE * 24+8, 560))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             ":", True, Color.Grey), (BSIZE * 24 + 8 + 90, 560))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             str(self.system.level), True, Color.LightRed), (BSIZE * 24+8 + 110, 560))
 
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             "Lines", True, Color.Grey), (BSIZE * 24+8, 590))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             ":", True, Color.Grey), (BSIZE * 24+8 + 90, 590))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             str(self.system.cleared_lines), True, Color.LightRed), (BSIZE * 24+8 + 110, 590))
 
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             "Time", True, Color.Grey), (BSIZE * 24+8, 620))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             ":", True, Color.Grey), (BSIZE * 24+8 + 90, 620))
-        self.screen.blit(self.assets.font.render("{}:{}".format(int(self.system.total_time // 60), int(self.system.total_time % 60)),
+        self.screen.blit(self.assets.font_32.render("{}:{}".format(int(self.system.total_time // 60), int(self.system.total_time % 60)),
                                                  True, Color.LightBlue), (BSIZE * 24 + 8 + 110, 620))
 
         self.draw_score()
@@ -163,16 +164,16 @@ class GameplayScreen(object):
 
         pygame.draw.rect(self.screen, Color.Grey, (BSIZE * 24,
                          BSIZE * 2, BSIZE * 5, BSIZE * 2), 1)
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             "Best", True, Color.Grey),      (BSIZE * 24 + 8, BSIZE * 2 + 2))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             score, True, Color.LightRed),   (BSIZE * 24 + 8, BSIZE * 3))
 
         pygame.draw.rect(self.screen, Color.Grey, (BSIZE * 24,
                          BSIZE * 10, BSIZE * 5, BSIZE * 2), 1)
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             "Score", True, Color.Grey),     (BSIZE * 24 + 8, BSIZE * 10 + 2))
-        self.screen.blit(self.assets.font.render(
+        self.screen.blit(self.assets.font_32.render(
             score, True, Color.LightGreen), (BSIZE * 24 + 8, BSIZE * 11))
 
     def draw_pause(self) -> None:

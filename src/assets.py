@@ -21,12 +21,11 @@ class Assets(object):
         self.settings_level_cursor      : Surface = pygame.transform.scale(pygame.image.load("./assets/8.png").convert_alpha(), (64, 64))
         self.settings_background_image  : Surface = pygame.transform.scale(pygame.image.load("./assets/settings4.png"  ).convert_alpha() ,(1227, 700) )
 
-        self.background_image : Surface = pygame.transform.scale(pygame.image.load("./assets/map4.png").convert_alpha(),(1150, 700)) 
         self.logo_image       : Surface = pygame.image.load("./assets/Untitled.png").convert_alpha()
         self.misaka_image     : Surface = pygame.image.load("./assets/misaka1.png" ).convert_alpha()
 
         self.block_images     : list    = []
-        for i in range(1, 9):
+        for i in range(1, 10):
             self.block_images.append(pygame.image.load("./assets/blocks/" + str(i) +".png").convert_alpha())
 
 
@@ -50,7 +49,7 @@ class Assets(object):
 
     def init_fonts(self) -> None:
         self.font_24 = pygame.font.Font('./assets/font.ttf', 24)
-        self.font = pygame.font.Font('./assets/font.ttf', 32)
+        self.font_32 = pygame.font.Font('./assets/font.ttf', 32)
         self.font_48 = pygame.font.Font('./assets/font.ttf', 48)
         self.font_64 = pygame.font.Font('./assets/font.ttf', 64)
         self.font_consolas = pygame.font.Font('./assets/font1.ttf', 12)

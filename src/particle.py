@@ -1,6 +1,6 @@
 """
 ---------------------------------------------------------------------------------------------------------------------------------------
-@file       game.py
+@file       src/particles.py
 @author     Milos Milicevic (milosh.mkv@gmail.com)
 
 @version    0.1
@@ -11,71 +11,85 @@ Distributed under the MIT software license, see the accompanying file LICENCE or
 ---------------------------------------------------------------------------------------------------------------------------------------
 """
 
-import random
+
 import pygame
-from src.colors    import Color
+
+from random        import uniform, randint
 from pygame        import Surface
-from src.constants import Constants
+from src.colors    import Color
 
 class Particle(object):
 
-    def __init__(self, position : list, velocity : list, speed : list) -> None:
-        self.position : list    = position
-        self.velocity : list    = velocity
-        self.speed    : list    = speed
-        self.color    : tuple   = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        self.size     : int     = random.randint(2, 8)
+    def __init__(self, position : list, velocity : list, speed : list, color : list, size : int) -> None:
+        self.position : list  = position
+        self.velocity : list  = velocity
+        self.speed    : list  = speed
+        self.color    : tuple = color
+        self.size     : int   = size
 
-
-class BackgroundParticleSystem(object):
-
-    def __init__(self) -> None:
-        self.particles : list   = [ 
-            Particle([random.uniform(0, Constants.SCREEN_SIZE[Constants.X]), random.uniform(0, Constants.SCREEN_SIZE[Constants.Y])],
-                     [random.uniform(-0.05, 0.1), random.uniform(-0.1,  -0.2 )],
-                     [random.uniform(-0.1,  0.2), random.uniform(-0.02, -0.09)]) for _ in range(100) ]
-
-
-    def update(self, delta : float) -> None:
-        for particle in self.particles:
-            self.update_particle(particle, delta)
-            if  particle.position[Constants.Y] < 0:
-                particle.position = [random.uniform(0, Constants.SCREEN_SIZE[Constants.X]), Constants.SCREEN_SIZE[Constants.Y]]
-                particle.velocity = [random.uniform(-0.5, 0.5), random.uniform(-0.1, -0.5)]
-
-
-    def update_particle(self, particle : Particle, delta : float) -> None:
-        for i in range(2):
-            particle.position[i] += particle.velocity[i]
-            particle.velocity[i] += particle.speed[i] * delta
-
-    def render(self, screen : Surface) -> None:
-        for particle in self.particles:
-            pygame.draw.rect(screen, particle.color, (particle.position[0], particle.position[1], particle.size, particle.size), 1)
-
-
-
-class HardDropParticles(object):
-
+class ParticleSystem(object):
+    
     def __init__(self) -> None:
         self.particles : list = []
+        
+    def render(self, surface : Surface) -> None:
+        for particle in self.particles:
+            pygame.draw.rect(surface, particle.color, (particle.position[0], particle.position[1], particle.size, particle.size), 1)
 
-    def add(self, position : list) -> None:
-        self.particles.append(Particle(position,  [random.uniform(-0.01, 0.01), random.uniform(-0.1, -0.2)], [random.uniform(-0.1,  0.1), random.uniform(-0.02, -0.09)] ))
+class BackgroundParticleSystem(ParticleSystem):
+
+    def __init__(self, width : int, height : int) -> None:
+        super().__init__()
+        self.width  : int = width
+        self.height : int = height
+
+        for _ in range(100):
+            self.particles.append(Particle([uniform(0, width), uniform(0, height)], [uniform(-0.5, 0.5), uniform(-0.1, -0.2)],
+                [uniform(-0.1,  0.1), uniform(-0.02, -0.09)], [randint(100, 255) for __ in range(3)], randint(2, 8)))
+    
+    def distort(self) -> None:
+        for particle in self.particles:
+            particle.velocity[0] += uniform(0.1, 0.5) if particle.position[0] > self.width / 2 else uniform(-0.5, -0.1)
+            particle.velocity[1] -= uniform(0.1, 0.5)
+    
+    def boom(self) -> None:
+        for particle in self.particles:
+            if particle.position[1] < self.height:
+                particle.velocity[0]  += uniform(3, 5) if particle.position[0] > self.width / 2  else uniform(-5, -3)
+    
+    def add(self, x : int, y : int) -> None:
+        self.particles.append(Particle([x, y], [uniform(-0.5, 0.5), uniform(-0.1, -0.2)],
+            [uniform(-0.1, 0.1), uniform(-0.02, -0.09)], [randint(100, 255) for __ in range(3)], randint(2, 8)))
 
     def update(self, delta : float) -> None:
         for particle in self.particles:
-            particle.size -= delta
-            self.update_particle(particle, delta)
-            if  particle.size < 1:
-                self.particles.remove(particle)
+            particle.position[0] += particle.velocity[0] * delta * 200
+            particle.velocity[0] += particle.speed[0]    * delta
+            particle.position[1] += particle.velocity[1] * delta * 300
+            particle.velocity[1] += particle.speed[1]    * delta
 
-    def update_particle(self, particle : Particle, delta : float) -> None:
-        particle.position[0] += particle.speed[0] * delta * 200
-        particle.position[1] += -100 * delta
-            # particle.velocity[i] += 
+            if  particle.position[1] < 0 or particle.position[0] < 0 or particle.position[0] > self.width:
+                particle.position = [randint(0, self.width), randint(self.height, self.height + 200)]
+                particle.velocity = [uniform(-0.5, 0.5), uniform(-0.1 , -0.5 )]
+                particle.speed    = [uniform(-0.1, 0.1), uniform(-0.02, -0.09)]
+                particle.color    = [randint(100, 255) for __ in range(3)]
+                particle.size     =  randint(2, 8)
 
-    def render(self, screen : Surface) -> None:
+
+class HardDropParticleSystem(ParticleSystem):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def add(self, x : int, y : int, offset_x : int, offset_y : int) -> None:
+        self.particles.append(Particle([randint(x, offset_x), randint(y, offset_y)], [uniform(-0.01, 0.01), uniform(-1, -1)],
+            [uniform(-0.1,  0.1),  uniform(-0.02, -0.09)], Color.Grey, 10))
+
+    def update(self, delta : float) -> None:
         for particle in self.particles:
-            pygame.draw.rect(screen, Color.White, (particle.position[0], particle.position[1], 20, 20)) #particle.size, particle.size))
+            particle.position[1] += particle.velocity[1] * delta * 200
+            particle.velocity[1] += particle.speed[1]    * delta * 400
 
+            particle.size -= delta * 15 
+            if  particle.size < 1:
+                self.particles.remove(particle) 

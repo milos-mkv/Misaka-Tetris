@@ -34,7 +34,7 @@ class MainMenuScreen(object):
         self.assets    : Assets                   = assets
         self.events    : EventHandler             = event_handler
 
-        self.particles : BackgroundParticleSystem = BackgroundParticleSystem()
+        self.particles : BackgroundParticleSystem = BackgroundParticleSystem(100, 100)
         self.cursor    : MainMenuCursor           = MainMenuCursor.Play
 
 

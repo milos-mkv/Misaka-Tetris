@@ -40,7 +40,7 @@ class SettingsScreen(object):
         self.events    : EventHandler             = event_handler
 
         self.cursor    : SettingsCursor           = SettingsCursor.Level
-        self.particles : BackgroundParticleSystem = BackgroundParticleSystem()
+        self.particles : BackgroundParticleSystem = BackgroundParticleSystem(100, 100)
 
 
     def render(self, delta : float) -> None:
@@ -91,7 +91,7 @@ class SettingsScreen(object):
 
         
 
-        self.screen.blit(self.assets.font.render(str(">> Starting Level <<" if self.cursor == SettingsCursor.Level else "   Starting Level   "), True, Color.Grey), (105, 160))
+        self.screen.blit(self.assets.font_32.render(str(">> Starting Level <<" if self.cursor == SettingsCursor.Level else "   Starting Level   "), True, Color.Grey), (105, 160))
         for i in range(2):
             for j in range(5):
                 color = Color.White
@@ -101,13 +101,13 @@ class SettingsScreen(object):
                 self.screen.blit(self.assets.font_64.render(str( ( i * 5 ) + j ), True, color), (100 + j * 64, 210 + i * 64))
 
         
-        self.screen.blit(self.assets.font.render("Audio", True, Color.Grey), (195, 400))
+        self.screen.blit(self.assets.font_32.render("Audio", True, Color.Grey), (195, 400))
         if self.events.key("space"):
             Settings.Music = not Settings.Music
         music_str = "Music: " + ("On" if Settings.Music else "Off")
         sound_str = "Sound: " + ("On" if Settings.Sound else "Off") 
 
-        self.screen.blit(self.assets.font.render(">> "+music_str+" <<" if self.cursor == SettingsCursor.Music else "   "+music_str+"   ", True, Color.White), (135, 450))
-        self.screen.blit(self.assets.font.render(">> "+sound_str+" <<" if self.cursor == SettingsCursor.Sound else "   "+sound_str+"   ", True, Color.White), (135, 500))
+        self.screen.blit(self.assets.font_32.render(">> "+music_str+" <<" if self.cursor == SettingsCursor.Music else "   "+music_str+"   ", True, Color.White), (135, 450))
+        self.screen.blit(self.assets.font_32.render(">> "+sound_str+" <<" if self.cursor == SettingsCursor.Sound else "   "+sound_str+"   ", True, Color.White), (135, 500))
 
         self.screen.blit(self.assets.font_48.render(str( ">> Back <<" if self.cursor == SettingsCursor.Back else "   Back   " ), True, Color.Grey), ( 64, 620))

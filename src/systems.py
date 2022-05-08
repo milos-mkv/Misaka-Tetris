@@ -46,10 +46,14 @@ class GameplaySystem(object):
         self.score          : int   = 0 
         self.inc_level      : int   = 0  
 
+
+        self.clear_time     : bool  = False
+
         self.indices        : list  = []
         self.block_ids      : list  = [] 
 
         self.dropped_hard   : bool  = False
+        self.dropped_hard_cursor = []
 
         self.spawn_new_block()
 
@@ -99,7 +103,7 @@ class GameplaySystem(object):
 
     
     def update(self, delta : float) -> None:
-        if self.paused or self.pause_time > 0:
+        if self.paused or self.clear_time:
             return
 
         self.total_time += delta
@@ -255,24 +259,29 @@ class GameplaySystem(object):
 
 
     def check_for_cleared_lines(self) -> None:
+        if self.clear_time:
+            return
+
         for i in range(Constants.ROWS):
             if all(list(self.tetris_field[i])):
-                self.block_ids.append(list(self.tetris_field[i]).copy())
-                self.tetris_field[i] = [0 for _ in range(Constants.COLS)]
                 self.indices.append(i)
         
+        if len(self.indices):
+            self.clear_time = True
+            self.assets.channel1.play(self.assets.clear_sound)
+            self.update_score(len(self.indices))
+            self.update_level()
+
+
+    def clear(self) -> None:
+        self.clear_time = False
+                    
         for index in self.indices:
             for i in range(index, 0, -1):
                 self.tetris_field[i] = self.tetris_field[i - 1]
-            self.tetris_field[0] = [0 for _ in range(Constants.COLS)]
-
-        if len(self.indices):
-            
-            self.assets.channel1.play(self.assets.clear_sound)
-            self.update_score(len(self.indices))
-            self.inc_level += len(self.indices)
-            self.update_level()
-    
+                self.tetris_field[0] = [0 for _ in range(Constants.COLS)]
+        
+        self.indices = []
 
     def update_score(self, cleared : int) -> None:
         self.cleared_lines += cleared
@@ -280,6 +289,7 @@ class GameplaySystem(object):
 
 
     def update_level(self):
+        self.inc_level += len(self.indices)
         if self.inc_level   >= 10:
             self.inc_level  -= 10
             self.level      += 1 
