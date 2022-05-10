@@ -53,7 +53,7 @@ class GameplayScreen(Screen):
     def render(self, delta: float) -> None:
         self.surface.fill(Color.LightBlack)
 
-
+        # self.surface.blit(self.assets.misaka_image, (200,0))
         if self.events.keys["space"]:
             self.particles.distort()
     
@@ -61,9 +61,9 @@ class GameplayScreen(Screen):
 
         self.draw_clear_animation(delta)
         
-        # self.move_board(delta)
-        # self.particles.update(delta)
-        # self.particles.render(self.surface)
+        # # self.move_board(delta)
+        self.particles.update(delta)
+        self.particles.render(self.surface)
         # self.hard_drop_particles.update(delta)
         # self.hard_drop_particles.render(self.surface)
 
@@ -98,6 +98,8 @@ class GameplayScreen(Screen):
 
                 if self.block_in_row_to_remove == Constants.COLS:
                     self.block_in_row_to_remove = 0
+                    if len(self.system.indices) == 4:
+                        self.particles.boom()
                     self.system.clear()
 
                    
@@ -114,11 +116,12 @@ class GameplayScreen(Screen):
         for i in range(len(peace)):
             for j in range(len(peace[i])):
                 if peace[i][j] == 1 and not self.system.clear_time:
-                    self.surface.blit(
-                        self.get_image_for_block(Constants.VALUES[self.system.current_peace]), (
-                            (self.system.cursor[Constants.X] +
-                             j + offset) * BSIZE ,
-                            (self.system.cursor[Constants.Y] + i) * BSIZE + self.board_offset_y))
+                    if (self.system.cursor[Constants.Y] + i) * BSIZE + self.board_offset_y >= BSIZE:
+                        self.surface.blit(
+                            self.get_image_for_block(Constants.VALUES[self.system.current_peace]), (
+                                (self.system.cursor[Constants.X] +
+                                j + offset) * BSIZE ,
+                                (self.system.cursor[Constants.Y] + i) * BSIZE + self.board_offset_y))
                     self.surface.blit(self.assets.block_images[7], (
                         (self.system.ghost_cursor[Constants.X] +
                          j + offset) * BSIZE ,
