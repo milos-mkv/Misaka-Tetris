@@ -61,11 +61,11 @@ class GameplayScreen(Screen):
 
         self.draw_clear_animation(delta)
         
-        # # self.move_board(delta)
+        # self.move_board(delta)
         self.particles.update(delta)
         self.particles.render(self.surface)
-        # self.hard_drop_particles.update(delta)
-        # self.hard_drop_particles.render(self.surface)
+        self.hard_drop_particles.update(delta)
+        self.hard_drop_particles.render(self.surface)
 
         self.draw_tetris_field(offset=13)
         self.draw_next_block(24)
@@ -156,12 +156,12 @@ class GameplayScreen(Screen):
 
     def draw_next_block(self, offset: int) -> None:
         self.draw_block(self.system.get_next_peace(), self.system.next_peace, offset)
-        self.surface.blit(self.assets.font_32.render("Next", True, Color.White), (BSIZE * offset + 5, BSIZE * 5))
+        self.surface.blit(self.assets.font_32.render("Next", True, Color.Grey), (BSIZE * offset + 8, BSIZE * 5))
 
     def draw_hold_block(self, offset: int) -> None:
         self.draw_block(self.system.get_hold_peace(),
                         self.system.hold_peace, offset)
-        self.surface.blit(self.assets.font_32.render("Hold", True, Color.White), (BSIZE * offset + 5, BSIZE * 5))
+        self.surface.blit(self.assets.font_32.render("Hold", True, Color.Grey), (BSIZE * offset + 8, BSIZE * 5))
 
     def draw_block(self, peace: list, block_name: str, offset: int) -> None:
         pygame.draw.rect(self.surface, Color.Grey, (offset * 32, 5 * 32, 32 * 5, 32 * 4), 1)

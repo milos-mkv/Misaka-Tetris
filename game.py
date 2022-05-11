@@ -14,25 +14,15 @@ Distributed under the MIT software license, see the accompanying file LICENCE or
 import pygame
 import pickle
 
-from pygame        import Surface
-from pygame.time   import Clock
-from src.particle import BackgroundParticleSystem, HardDropParticleSystem
-from src.colors    import Color
-
-from src.constants import Constants
-from src.assets    import Assets
-from src.events    import EventHandler
-from src.settings  import SettingsScreen, Settings
+from pygame                import Surface
+from pygame.time           import Clock
+from src.colors            import Color
+from src.constants         import Constants
+from src.assets            import Assets
+from src.events            import EventHandler
+from src.settings          import Settings
 from src.screens.gameplay  import GameplayScreen
-
-from src.mainmenu  import MainMenuCursor, MainMenuScreen
-from src.states import GlobalStates
-
-pygame.mixer.pre_init(44100, -16, 2, 2048)
-pygame.init()
-pygame.mixer.init()
-pygame.joystick.init()
-
+from src.states            import GlobalStates
 
 class Game(object):
 
@@ -46,14 +36,12 @@ class Game(object):
         self.screens : dict = {
             "Gameplay": GameplayScreen(self.surface, self.assets, self.event_handler)
         }
-                                
+
         pygame.display.set_caption('Misaka Tetris')
         pygame.display.set_icon(pygame.image.load("./assets/icon.png"))
 
 
     def run(self) -> None:
-        second_counter : int = 0
-
         while GlobalStates.Running:
             self.delta = self.clock.tick() / 1000.0
             
@@ -63,11 +51,7 @@ class Game(object):
             self.screens[GlobalStates.Screen].render(self.delta)
 
             pygame.display.flip()
-            
-            second_counter += self.delta
-            if second_counter >= 1.0:
-                # print(self.clock.get_fps())
-                second_counter = 0
+
 
     def poll_events(self):
         for event in pygame.event.get():
@@ -75,22 +59,15 @@ class Game(object):
             if event.type == pygame.KEYDOWN: self.event_handler.handle_key_events(event, True )
             if event.type == pygame.KEYUP:   self.event_handler.handle_key_events(event, False)
 
-            self.event_handler.handle_joystick_buttons(event)
-
 
 if __name__ == "__main__":
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.init()
+    pygame.mixer.init()
+    pygame.joystick.init()
+
     game = Game()
-
-    with open('data.pkl', 'rb') as f:
-        data = pickle.load(f)
-        Settings.Level = data["level"]
-
     game.run()
-
-    with open('data.pkl', 'wb') as f:
-        data = { "level": Settings.Level }
-        pickle.dump(data, f)
-
 
     pygame.quit()
     pygame.mixer.quit()
