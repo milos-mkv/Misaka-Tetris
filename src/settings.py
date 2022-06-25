@@ -11,7 +11,6 @@ Distributed under the MIT software license, see the accompanying file LICENCE or
 ---------------------------------------------------------------------------------------------------------------------------------------
 """
 
-from typing import Set
 from pygame         import Surface
 from src.particle   import BackgroundParticleSystem
 from src.colors     import Color

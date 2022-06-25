@@ -26,9 +26,6 @@ class Assets(object):
             self.block_images.append(pygame.image.load("./assets/blocks/" + str(i) +".png").convert_alpha())
 
 
-        self.main_menu_particle_images : list = []
-        for i in range(7):
-            self.main_menu_particle_images.append(pygame.image.load("./assets/main_menu_particles/" + str(i) +".png").convert_alpha())
 
 
     def init_audio(self) -> None:
